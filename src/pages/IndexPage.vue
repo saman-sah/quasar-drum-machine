@@ -17,9 +17,27 @@
           label="Power"
           unchecked-icon="clear"
           />
-          <q-btn color="black" label="Stop" />
+          <q-btn @click="stopAudio()" color="black" label="Stop" />
           <q-btn style="background: #FF0080; color: white" label="No Sound" />
         </q-card>
+        <q-card class="my-card row  q-pa-sm q-mt-sm">
+          <q-toggle
+          class="col-4"
+          v-model="loop"
+          checked-icon="check"
+          color="purple"
+          label="Loop"
+          unchecked-icon="clear"
+          />
+          <q-slider
+          class="col-8"
+          v-model="volume"
+          :step="1"
+          :min="0" 
+          :max="5"
+        />
+        </q-card>
+        
       </div>
     </div>
 
@@ -51,13 +69,32 @@ export default defineComponent({
   data() {
     return {
       power: true,
-      sounds
+      sounds,
+      currenAudio:{},
+      volume: 3,
+      loop: true
     }
   },
   methods: {
     playAudio(url) {
-      var audio = new Audio(url);
-      audio.play();	
+      if (this.power && Object.keys(this.currenAudio).length === 0) {
+        var audio = new Audio(url);
+        audio.volume=this.volume / 5;
+        audio.loop= this.loop;
+        this.currenAudio=audio, 
+        this.currenAudio.play();
+        this.power=false
+        this.currenAudio.addEventListener('ended', ()=> {
+          console.log('end');
+          this.power= true
+        })
+      }      	
+    },
+    stopAudio() {
+      if(this.currenAudio) {
+        console.log('stop audio');
+        this.currenAudio.pause();	
+      }
     }
   },
 })
